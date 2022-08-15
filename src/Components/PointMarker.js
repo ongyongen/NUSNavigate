@@ -1,16 +1,12 @@
 
-import { Marker} from "react-map-gl";
-import {GeolocateControl, Popup} from "react-map-gl";
-import { useState, useRef, useCallback, useEffect} from 'react';
-
-
-import Map from "react-map-gl";
-import MapboxGeocoder, {GeocoderOptions} from '@mapbox/mapbox-gl-geocoder';
+import { Marker } from "react-map-gl";
+import { Popup } from "react-map-gl";
+import { useState } from 'react';
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const PointMarker = ({longitude, latitude, name, addr}) => {
-    const [popupInfo, setPopupInfo] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
 
     return (
         <>
@@ -18,21 +14,28 @@ const PointMarker = ({longitude, latitude, name, addr}) => {
             longitude={longitude} 
             latitude={latitude} 
             scale={0.7} 
+            onClick={e => {
+                // If we let the click event propagate to the map, it will immediately close the popup
+                // with `closeOnClick: true`
+                e.originalEvent.stopPropagation();
+                setShowPopup(true);
+            }}
         > 
         </Marker>
-        {<Popup
+        {showPopup && (
+          <Popup
+            anchor="top"
             longitude={longitude}
             latitude={latitude}
-            onClose={() => setPopupInfo(null)}
-            closeOnClick={false}
-        >
+            onClose={() => setShowPopup(false)}
+          >
             {name}
-        </Popup>}
+            {!name.includes("Bus Stop") && ' '}
+            {!name.includes("Bus Stop") && addr}
+        </Popup>
+        )}
         </>
     )
 }
 
 export default PointMarker
-
-/*             onClick={() => alert(`${name} \nAddress: ${addr}`)}
-*/
