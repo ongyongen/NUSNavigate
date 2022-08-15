@@ -1,5 +1,5 @@
 
-import Map, {GeolocateControl, Marker,Popup} from "react-map-gl";
+import Map, {GeolocateControl, Marker, Popup } from "react-map-gl";
 import MapboxGeocoder, {GeocoderOptions} from '@mapbox/mapbox-gl-geocoder';
 import { useState, useRef, useCallback} from 'react';
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -12,6 +12,8 @@ import './map.css'
 let data = require('../data.json');
 
 const BaseMap = () => {
+  const [popupInfo, setPopupInfo] = useState(null);
+
 
   var bus_stop = data.filter((x) => x.name.includes("Bus Stop"))
   var others = data.filter((x) => x.name.includes("Bus Stop") == false)
@@ -22,6 +24,7 @@ const BaseMap = () => {
     latitude: 1.2955175316779877, 
     zoom: 15
   });
+
 
   const [input, setInput] = useState("")
   const [showSelection, setShowSelection] = useState(true)
@@ -39,6 +42,7 @@ const BaseMap = () => {
     setInput(e.target.value)
     setShowSelection(false)
   }
+
 
   return (
     <div id="map-page">
@@ -66,18 +70,41 @@ const BaseMap = () => {
         />
       ))}
       {point.map((point) => (
-        <PointMarker
+        <Marker
             longitude={point["lon"]}
             latitude={point["lat"]}
             name={point["name"]}
+            addr={point["address"]}
+            onClick={e => {
+              // If we let the click event propagates to the map, it will immediately close the popup
+              // with `closeOnClick: true`
+              e.originalEvent.stopPropagation();
+              setPopupInfo(point);
+            }}
         />
       ))}
+       {popupInfo && (
+          <Popup
+            anchor="top"
+            longitude={point[0]["lon"]}
+            latitude={point[0]["lat"]}
+            onClose={() => setPopupInfo(null)}
+          >{point[0]["name"]}</Popup>
+       )}
       </Map>
     </div>
   );
 }
 
 export default BaseMap;
+
+
+
+
+
+   
+
+
 
 
 
